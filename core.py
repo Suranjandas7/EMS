@@ -1,8 +1,10 @@
 #To-Do:IDEA: write the final email sending function into this core and extend it to the client via codebase
 #To-Do:IDEA: write analytics function.
 
-#OBJ:Change a lot of output functions to provide output in data.html and use them as email templates later once they are verified.
+#To-Do:Change a lot of output functions to provide output in data.html and use them as email templates later once they are verified.
 #		1		[print_items] has become obsolute. Replacing with other function [create_html_Market] that outputs in data.html
+
+#To-Do: Clean up the code a lot.
 
 import random
 import string
@@ -360,8 +362,6 @@ class inventory(object):
 					currentkey = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(4))
 					self.keys.append(currentkey)
 					print '\n' + 'key added : ' + currentkey
-			print 'Total Keys : '
-			print self.keys
 
 	#removes a particular key and all the items attached to it
 	def remove_key(self, key, mkey):

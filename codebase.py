@@ -60,17 +60,17 @@ def showquant():
 	inv.only_quantity(key)
 	print '\n\n'
 
-def Output_Market():
+def Output_Market(key):
 	spacegiver()
-	key = str(raw_input('Enter key : '))
 	inv.create_html_Market(key)
 	print '\n\n'
 
-def keys_create():
+def showkeys():
+	print inv.keys
+
+def keys_create(x, mkey):
 	spacegiver()
-	mkey = str(raw_input('Enter mkey : '))
-	number = int(raw_input('Enter number of keys to be created : '))
-	inv.create_key(number, mkey)
+	inv.create_key(x, mkey, 'NA')
 	print '\n\n'
 
 def check_keymap():
@@ -160,7 +160,7 @@ def int_m(commandkey): #initial function that creates the "mkey"
 	keyexists = False
 	for key in inv.keys:
 		try:
-			if inv.mappedkeys[key] is 'MA':
+			if str(inv.mappedkeys[key])[:-1] is 'MA':
 				keyexists = True
 		except KeyError:
 				print 'MapError'
@@ -168,9 +168,6 @@ def int_m(commandkey): #initial function that creates the "mkey"
 		inv.create_key(666,'000', commandkey)
 		mkey = inv.keys
 		inv.map_keys(mkey[0], 'MA','')
-		for int in range(0,5):
-			print '\n'
-		print 'Master Key created : %s' % (mkey)
 		
 def back_up():
 	inv.back_up()	

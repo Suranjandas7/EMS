@@ -6,6 +6,7 @@ import codebase
 import poplib
 import email
 import email.header
+import sched, time
 
 orders = []
 
@@ -44,12 +45,28 @@ def mainloop():
 	check_for_orders()
 
 	if orders == []:
-		print 'No new order received'
+		print 'No new orders...'
 	else:
 		for items in orders:
-			#initial masterkey creation command -> int_m
-			if str(items)[0:5] == 'int_m':
-				codebase.int_m(str(items)[6:len(items)])
-				codebase.main()
+			#admin command to create key -> crea [MASTERKEY]
+			if str(items)[0:4] == 'crea':
+				codebase.keys_create(int(str(items)[5:6]), str(items)[7:len(items)])
+				print 'Key Created.'
+				orders.remove(items)
 
-mainloop()
+			#show commands sends a email with the inventory html file as the body -> show [KEY]
+			if str(items)[0:4] == 'show':
+				codebase.create_html_Market(str(items)[5:len(items)])
+				print 'Email sent with market inventory to: '
+				orders.remove(items)
+	s.enter(120,1,mainloop(), (sc,))
+
+#initial masterkey creation command -> int_m [MASTERKEY]
+
+initialMkey = str(raw_input('Set the MASTERKEY: '))
+codebase.int_m(initialMkey)
+print 'Masterkey Created. EMS service online. Receiving Orders'
+
+s = sched.scheduler(time.time, time.sleep)
+s.enter(120,1,mainloop(), (sc,))
+s.run
