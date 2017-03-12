@@ -351,11 +351,10 @@ class inventory(object):
 			print 'HTML FILE CREATED.' #change this to later make it return the final message and use that as email body.
 
 	#creates x no. of keys and stores it in the system
-	def create_key(self, noofkeys, mkey):
+	def create_key(self, noofkeys, mkey, int_mcommand):
 		if self.key_mcheck(mkey) is 1 or mkey is '000':
 			if noofkeys == 666:
-				custom = str(raw_input('Enter custom key to be entered: '))
-				self.keys.append(custom)
+				self.keys.append(int_mcommand)
 			else:	
 				for i in range(0, noofkeys):
 					currentkey = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(4))

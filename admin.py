@@ -1,23 +1,32 @@
-#TO-DO:IDEA: Write a client always-on app which will receive email incoming and use them to make commands go to the core through codebase
-
-#admin server script
+#listening script
 
 from core import *
 import codebase
 
-codebase.main()
+import poplib
+import email
+import email.header
+
+orders = []
 
 def check_for_orders():
-	username = ''
-	password = ''
+	#username goes here ->
+	username = '420dopeshiteveryday@gmail.com'
+	#password goes here ->
+	password = 'kickasss1'
 
-	max_orders = 10
+	#we only check for max 20 orders every 2 minutes
+	max_orders = 100
+
+	#log into pop
 	pop_conn = poplib.POP3_SSL('pop.gmail.com')
 	pop_conn.user(username)
 	pop_conn.pass_(password)
 
+	#counting number of messages
 	msgcount = pop_conn.stat()[0]
 
+	#main loop checking the subjects and adding them to orders list
 	for i in range(msgcount, max(0, msgcount - max_orders), -1):
 		response, msg_as_list, size = pop_conn.retr(i)
 		msg = email.message_from_string('\r\n'.join(msg_as_list))
@@ -27,5 +36,20 @@ def check_for_orders():
 			charset = decheader[0][1]
 			if charset:
 				subject = subject.decode(charset)
-			print "msg num" + str(i) + ',' + subject
-pop_conn.quit()
+			orders.append(subject)
+	orders.reverse() #for sequence		
+	pop_conn.quit()
+
+def mainloop():
+	check_for_orders()
+
+	if orders == []:
+		print 'No new order received'
+	else:
+		for items in orders:
+			#initial masterkey creation command -> int_m
+			if items == 'int_m':
+				codebase.int_m('MASTER')
+				codebase.main()
+
+mainloop()

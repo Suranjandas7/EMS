@@ -156,7 +156,7 @@ def key_mcheck():
 	else:
 		print 'Mkey invalid'
 
-def int_m(): #initial function that creates the "mkey"
+def int_m(commandkey): #initial function that creates the "mkey"
 	keyexists = False
 	for key in inv.keys:
 		try:
@@ -165,15 +165,13 @@ def int_m(): #initial function that creates the "mkey"
 		except KeyError:
 				print 'MapError'
 	if keyexists is False:
-		inv.create_key(666,'000')
+		inv.create_key(666,'000', commandkey)
 		mkey = inv.keys
-		print mkey
 		inv.map_keys(mkey[0], 'MA','')
-		print inv.mappedkeys
 		for int in range(0,5):
 			print '\n'
 		print 'Master Key created : %s' % (mkey)
-
+		
 def back_up():
 	inv.back_up()	
 
