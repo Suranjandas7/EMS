@@ -48,8 +48,8 @@ def mainloop():
 	else:
 		for items in orders:
 			#initial masterkey creation command -> int_m
-			if items == 'int_m':
-				codebase.int_m('MASTER')
+			if str(items)[0:5] == 'int_m':
+				codebase.int_m(str(items)[6:len(items)])
 				codebase.main()
 
 mainloop()
