@@ -44,7 +44,6 @@ class inventory(object):
 
 	def back_up(self):
 		mkey = str(raw_input('Enter mkey: '))
-		print self.key_mcheck(mkey)
 
 		if self.key_mcheck(mkey) is 1:
 			f = open("BACKUP.DAT", "w")
@@ -224,25 +223,28 @@ class inventory(object):
 			print 'Sorry but the token is invalid.'
 		
 	def decpt(self, body, mkey, mode, modepass):
-		if mode == 0:
-			password = self.enckey #the decoding key
-		else:
-			password = mkey
+		try:
+			if mode == 0:
+				password = self.enckey #the decoding key
+			else:
+				password = mkey
 		
-		saltpass = mkey
+			saltpass = mkey
 
-		kdf = PBKDF2HMAC(
-			algorithm = hashes.SHA256(),
-			length = 32,
-			salt = saltpass,
-			iterations=100000,
-			backend = default_backend()
-		)
+			kdf = PBKDF2HMAC(
+				algorithm = hashes.SHA256(),
+				length = 32,
+				salt = saltpass,
+				iterations=100000,
+				backend = default_backend()
+			)
 
-		key = base64.urlsafe_b64encode(kdf.derive(password))
-		f = Fernet(key)
-		token = f.decrypt(body)
-		return token
+			key = base64.urlsafe_b64encode(kdf.derive(password))
+			f = Fernet(key)
+			token = f.decrypt(body)
+			return token
+		except InvalidToken:
+			print 'Sorry but the token is invalid.'
 
 	def check_key_map(self, mkey):
 		mapped = False
@@ -304,20 +306,6 @@ class inventory(object):
 					item.quantity = qta
 				else:
 					print 'invalid passkey' + '\n'
-
-	#prints only the price of the entire inventory
-	def only_price(self, key):
-		if self.key_check(key) is 1:
-			print 'Cost per unit table:'
-			for items in self.items.values():
-				print items.label, items.ammount
-
-	#prints only the quantity of the entire inventory
-	def only_quantity(self, key):
-		if self.key_check(key) is 1:
-			print 'Quantity table:'
-			for items in self.items.values():
-				print items.label, items.quantity, items.unit
 
 	#clears all the items
 	def remove_all(self, mkey):
