@@ -112,7 +112,6 @@ class inventory(object):
 			f.close()
 			print 'Backup created as BACKUP.dat\n'
 	
-	#MAW W
 	def restore(self):
 		#Restore function
 		mkey = str(raw_input('Enter mkey of BACKUP: '))
@@ -138,7 +137,6 @@ class inventory(object):
 			backupdata = backupdata.split('=SP=')
 		f.close()
 
-		#done
 		ITEMS = backupdata[0]
 		INDVITEMS = ITEMS.split('--')
 		print 'Market items found.'
