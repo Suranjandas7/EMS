@@ -1,8 +1,6 @@
 #To-Do:IDEA: write the final email sending function into this core and extend it to the client via codebase
 #To-Do:IDEA: write analytics function.
 
-#To-Do:WRITE: write a [--backup and--] restore function
-
 #OBJ:Change a lot of output functions to provide output in data.html and use them as email templates later once they are verified.
 #		1		[print_items] has become obsolute. Replacing with other function [create_html_Market] that outputs in data.html
 
@@ -17,16 +15,14 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC 
 
-#class buyer
 class buyer(object):
 	def __init__(self, key, wkey, wlabel):
 		self.mykey = key
 		self.wantedkey = wkey
 		self.wanteditemlabel = wlabel
 
-#class item
 class item(object):
-	def __init__(self, label, amt, qt, unit, key):
+	def __init__(self, label, amt, qt, unit, key, ID):
 		self.label = label
 		self.ammount = amt
 		self.quantity = qt
@@ -34,7 +30,6 @@ class item(object):
 		self.key = key
 		self.ID = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(3))
 
-#class inventory
 class inventory(object):
 	def __init__(self):
 		self.items = {}
@@ -45,7 +40,6 @@ class inventory(object):
 		self.pkeys = {} #hashed passkeys 
 		self.enckey = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(10)) #hashkey primarykey
 
-	#MAW W
 	def back_up(self):
 		mkey = str(raw_input('Enter mkey: '))
 		print self.key_mcheck(mkey)
@@ -62,11 +56,9 @@ class inventory(object):
 			backup_enckey = self.enckey
 					
 			#backup market items
-			i = 0
 			for element in backup_items.values():
-				k = str(element.label) + '-' + str(element.ammount) + '-' + str(element.quantity) + '-' + str(element.unit) + '-' + str(element.key) + '-' + str(element.ID) + '--'
-				backbupall = backupall + str((self.encpt(k,mkey,'NA', 'NA')))
-				i += 1
+				k = str(element.label) + '-' + str(element.ammount) + '-' + str(element.quantity) + '-' + str(element.unit) + '-' + str(element.key) + '-' +str(element.ID) + '--'
+				backupall = backupall + str(k)
 
 			backupall = backupall + '=SP='
 
@@ -116,25 +108,90 @@ class inventory(object):
 			#backup enckey
 			backupall = backupall + backup_enckey
 
-			print backupall
 			f.write(self.encpt(backupall, mkey, 'NA', 'NA'))
 			f.close()
 			print 'Backup created as BACKUP.dat\n'
 	
-	#MAW WBNC
+	#MAW W
 	def restore(self):
 		#Restore function
 		mkey = str(raw_input('Enter mkey of BACKUP: '))
 		f = open('BACKUP.DAT', 'rb')
+
+		#function used repetedly later on in this method
+		def rqk(maininput):
+			output = {}
+			listcategory = maininput.split('--')
+			for key in listcategory:
+				try:
+					firstfield = key.split('-')[0]
+					secondfield = key.split('-')[1]
+					output[firstfield] = secondfield
+				except IndexError:
+					print 'RESTORED.'
+					return output
+
+		#Sorting the decrypted data
 		for line in f.readlines():
-			print self.decpt(line,mkey,'NA','NA')
+			backupdata = line
+			backupdata = self.decpt(backupdata, mkey, 'NA', 'NA')
+			backupdata = backupdata.split('=SP=')
 		f.close()
 
-					
+		#done
+		ITEMS = backupdata[0]
+		INDVITEMS = ITEMS.split('--')
+		print 'Market items found.'
+		for entries in INDVITEMS:
+			try:
+				a = item(entries.split('-')[0], entries.split('-')[1], entries.split('-')[2], entries.split('-')[3], entries.split('-')[4], entries.split('-')[5])
+				self.items[a.ID] = a
+			except IndexError:
+				print 'RESTORED'
+
+		KEYS = backupdata[1]
+		INDVKEYS = KEYS.split('-')
+		print 'Market keys found.'
+		for keys in INDVKEYS:
+			self.keys.append(keys)
+		print 'RESTORED.'
+		
+		mappedkeys = backupdata[2]
+		print 'Keymaps found.'
+		finaldict = rqk(mappedkeys)
+		self.mappedkeys = finaldict
+	
+		BUYERS = backupdata[3]
+		print 'Buyers found.'
+		finaldict = rqk(BUYERS)
+		self.buyers = finaldict
+
+		CONNECTIONS = backupdata[4]
+		print 'Connections found.'
+		finaldict = rqk(CONNECTIONS)
+		self.connections = finaldict
+
+		PKEYS = backupdata[5]
+		print 'Pkey map found.'
+		finaldict = rqk(PKEYS)
+		self.connections = finaldict
+		
+		ENCCODE = backupdata[6]
+		self.enckey = ENCCODE
+		print 'ENCCODE found.'
+		print 'RESTORED.'
+		
+		for keys in self.keys:
+			if keys == '':
+				self.keys.remove(keys)
+
 	def map_pkey(self, key, pkey, mkey):
-		if self.key_check(key) is 1: 
-			self.pkeys[key] = str(self.encpt(pkey, mkey, 'NA', 'NA'))
-			print 'Passkey added.\n'
+		try:
+			print self.pkeys[key], 'already has a pkey.'
+		except KeyError:
+			if self.key_check(key) is 1: 
+				self.pkeys[key] = str(self.encpt(pkey, mkey,'NA', 'NA'))
+				print 'Passkey added.\n'
 
 	def check_pkey(self, key, pkey, mkey):
 		if self.key_check(key) is 1:
@@ -261,24 +318,6 @@ class inventory(object):
 			print 'Quantity table:'
 			for items in self.items.values():
 				print items.label, items.quantity, items.unit
-
-	#obsolute. Recoded to create_html_Market
-	#prints the inventory
-	#def print_items(self, key):
-	#	if self.key_check(key) is 1:	
-	#		totalcost = 0
-	#		totalquantity = 0
-	#		print '\t'.join(['Name', 'Price', 'No.', 'Unit', '#Key'])
-	#		for item in self.items.values():
-	#			totalcost += (float(item.ammount) * float(item.quantity))
-	#			totalquantity += float(item.quantity)
-	#			if item.label == '[removed]':
-	#				item.ID == 'removed'
-	#			else:
-	#				print '\t'.join([str (x) for x in [item.label, item.ammount, item.quantity, item.unit, item.key]])
-	#		print '\n\n'
-	#		print 'Total Value of Inventory : ' + str(totalcost)
-	#		print 'Total Quantity of Inventory : ' + str(totalquantity)
 
 	#clears all the items
 	def remove_all(self, mkey):

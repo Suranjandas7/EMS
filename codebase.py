@@ -30,7 +30,7 @@ def adding():
 	amt = raw_input('Enter quantity : ' + '\t')
 	u = str(raw_input('Enter units : ' + '\t'))
 	passkey = str(raw_input('Enter key : ' + '\t'))
-	inv.add_item(item(ID, pr, amt, u, passkey))
+	inv.add_item(item(ID, pr, amt, u, passkey, 'EMS'))
 	print '\n\n'
 
 def renew():
