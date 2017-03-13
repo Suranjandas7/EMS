@@ -1,10 +1,9 @@
-#To-Do:IDEA: write the final email sending function into this core and extend it to the client via codebase
-#To-Do:IDEA: write analytics function.
+#IDEA: write analytics function.
 
-#To-Do:Change a lot of output functions to provide output in data.html and use them as email templates later once they are verified.
-#		1		[print_items] has become obsolute. Replacing with other function [create_html_Market] that outputs in data.html
+#To-Do:NEXT: Fix pkey encryption bug (test)
+#To-Do:NEXT: Write sendemail func
+#To-Do:NEXT: Clean up the code a lot.
 
-#To-Do: Clean up the code a lot.
 
 import random
 import string
@@ -73,7 +72,7 @@ class inventory(object):
 			#backup market mappedkeys
 			for keys in backup_mappedkeys:
 				k = keys
-				mapped = backup_mappedkeys[k]
+				mapped = self.decpt(backup_mappedkeys[k], backup_enckey, 'NA', 'NA')
 				data = str(k) + '-' + str(mapped) + '--'
 				backupall = backupall + data
 
@@ -170,10 +169,20 @@ class inventory(object):
 		finaldict = rqk(CONNECTIONS)
 		self.connections = finaldict
 
+		#MAW
+		#special case as pkeys are encrypted by enckey instead of mkey to protect users
 		PKEYS = backupdata[5]
 		print 'Pkey map found.'
-		finaldict = rqk(PKEYS)
-		self.connections = finaldict
+		output = {}
+		listcategory = PKEYS.split('--')
+		for key in listcategory:
+			try:
+				firstfield = key.split('-')[0]
+				secondfield = key.split('-')[1]
+				output[firstfield] = secondfield
+			except IndexError:
+				print 'RESTORED.'
+		self.pkeys = output
 		
 		ENCCODE = backupdata[6]
 		self.enckey = ENCCODE
@@ -184,13 +193,13 @@ class inventory(object):
 			if keys == '':
 				self.keys.remove(keys)
 
-	def map_pkey(self, key, pkey, mkey):
+	def map_pkey(self, key, pkey):
 		try:
 			print self.pkeys[key], 'already has a pkey.'
 		except KeyError:
 			if self.key_check(key) is 1: 
-				self.pkeys[key] = str(self.encpt(pkey, mkey,'NA', 'NA'))
-				print 'Passkey added.\n'
+				self.pkeys[key] = str(self.encpt(pkey, self.enckey,'NA', 'NA'))
+				print 'Passkey added.'
 
 	def check_pkey(self, key, pkey, mkey):
 		if self.key_check(key) is 1:
@@ -223,28 +232,25 @@ class inventory(object):
 			print 'Sorry but the token is invalid.'
 		
 	def decpt(self, body, mkey, mode, modepass):
-		try:
-			if mode == 0:
-				password = self.enckey #the decoding key
-			else:
-				password = mkey
+ 		if mode == 0:
+			password = self.enckey #the decoding key
+		else:
+			password = mkey
 		
-			saltpass = mkey
+		saltpass = mkey
 
-			kdf = PBKDF2HMAC(
-				algorithm = hashes.SHA256(),
-				length = 32,
-				salt = saltpass,
-				iterations=100000,
-				backend = default_backend()
-			)
+		kdf = PBKDF2HMAC(
+			algorithm = hashes.SHA256(),
+			length = 32,
+			salt = saltpass,
+			iterations=100000,
+			backend = default_backend()
+		)
 
-			key = base64.urlsafe_b64encode(kdf.derive(password))
-			f = Fernet(key)
-			token = f.decrypt(body)
-			return token
-		except InvalidToken:
-			print 'Sorry but the token is invalid.'
+		key = base64.urlsafe_b64encode(kdf.derive(password))
+		f = Fernet(key)
+		token = f.decrypt(body)
+		return token
 
 	def check_key_map(self, mkey):
 		mapped = False
@@ -326,7 +332,6 @@ class inventory(object):
 					desc = '<tr><td>' + str(items.label) + '</td><td>' + str(items.ammount) + '</td><td>' + str(items.quantity) + '</td><td>' + str(items.unit) + '</td><td>' + str(items.key) + '</td></td>'
 					message2 = message2 + """
 					{desc}""".format(desc = desc)
-			f = open('data.html', 'w')
 			message1 = """<!DOCTYPE html>
 			<html lang = "en">
 			<head><meta charset = "utf-8"><meta name = "viewport" content = "width=device-width, initial-scale = 1"><title>Current Market</title></head>
@@ -336,9 +341,8 @@ class inventory(object):
 			message3 = """</table></div><div class = "container"><br><p>@2017</p></div>
 			</body></html>"""
 			final = message1 + message101 + message2 + message3
-			f.write(final)
-			f.close()
-			print 'HTML FILE CREATED.' #change this to later make it return the final message and use that as email body.
+			print 'HTML MAIL CREATED.' #change this to later make it return the final message and use that as email body.
+			return final
 
 	#creates x no. of keys and stores it in the system
 	def create_key(self, noofkeys, mkey, int_mcommand):

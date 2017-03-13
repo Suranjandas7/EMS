@@ -1,3 +1,6 @@
+#DONE: Write the acti [key] email command
+#TO-DO:NEXT: Finish the show [key] email command to include returning an email to the issued command
+#TO-DO:NEXT: Value error catching
 #listening script
 
 from core import *
@@ -51,14 +54,30 @@ def mainloop():
 			#admin command to create key -> crea [MASTERKEY]
 			if str(items)[0:4] == 'crea':
 				codebase.keys_create(int(str(items)[5:6]), str(items)[7:len(items)])
-				print 'Key Created.'
 				orders.remove(items)
 
 			#show commands sends a email with the inventory html file as the body -> show [KEY]
-			if str(items)[0:4] == 'show':
-				codebase.create_html_Market(str(items)[5:len(items)])
-				print 'Email sent with market inventory to: '
+			#MAW
+			#if str(items)[0:4] == 'show':
+			#	body = codebase.create_html_Market(str(items)[5:len(items)])
+				#send email using this body. Use the maping to extract the email id of the key of the user.
+			#	print 'Email sent with market inventory to: '
+			#	orders.remove(items)
+
+			#activates a key
+			if str(items)[0:4] == 'acti':
+				key = str(items)[5:9]
+				otherstuff = str(items)[10:len(str(items))]
+				ph = otherstuff.split('|')[0]
+				em = otherstuff.split('|')[1]
+				pk = otherstuff.split('|')[2]
+				for keys in codebase.inv.keys:
+					if key == keys:
+						codebase.inv.map_keys(key, ph, em)
+						codebase.inv.map_pkey(key, pk)
+						print 'Key mapped.'
 				orders.remove(items)
+
 	s.enter(120,1,mainloop(), (sc,))
 
 #initial masterkey creation command -> int_m [MASTERKEY]

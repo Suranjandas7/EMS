@@ -15,10 +15,7 @@ def check_pkey():
 		print 'Userkey : %s \n Passkey : %s \n Condition : Live' % (userkey, passkey)
 
 def keys_addp():
-	userkey = str(raw_input('Enter your user key: '))
-	pkey = str(raw_input('Enter your pkey: '))
-	mkey = str(raw_input('Enter mkey: '))
-	inv.map_pkey(userkey, pkey, mkey)
+	inv.map_pkey(userkey, pkey)
 
 def adding():
 	ID = str(raw_input('Enter the name of the product : ')) 
@@ -88,10 +85,7 @@ def Search():
 	inv.search(skey, key)
 	print '\n\n'	
 
-def mapkeys():
-	key = str(raw_input("Enter key : "))
-	ph = str(raw_input("Enter phone no : "))
-	email = str(raw_input("Enter email : "))
+def mapkeys(key, ph, email):
 	inv.map_keys(key, ph, email)
 	print '\n\n'
 
@@ -140,7 +134,7 @@ def int_m(commandkey): #initial function that creates the "mkey"
 		if inv.key_mcheck(key) is 1:
 			keyexists = True
 	if keyexists is False:
-		inv.create_key(666,'000', commandkey)
+		inv.create_key(666,'000', commandkey) #debug mode. commandkey
 		mkey = inv.keys
 		inv.map_keys(mkey[0], 'MA','')
 		
