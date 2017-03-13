@@ -7,9 +7,6 @@ from core import *
 inv = inventory()
 
 #Various functions that utilize the core functions on the inv object ->
-def spacegiver():
-	print ''
-
 def check_pkey():
 	userkey = str(raw_input('Enter your user key: '))
 	passkey = str(raw_input('Enter your pass key: '))
@@ -24,7 +21,6 @@ def keys_addp():
 	inv.map_pkey(userkey, pkey, mkey)
 
 def adding():
-	spacegiver()
 	ID = str(raw_input('Enter the name of the product : ')) 
 	pr = raw_input('Enter cost per unit : ' + '\t')
 	amt = raw_input('Enter quantity : ' + '\t')
@@ -34,7 +30,6 @@ def adding():
 	print '\n\n'
 
 def renew():
-	spacegiver()
 	ID = str(raw_input('Enter the name of the product : '))
 	cp = raw_input('Enter updated cost per unit : ' + '\t')
 	qt = raw_input('Enter updated quantity : ' + '\t')
@@ -43,25 +38,21 @@ def renew():
 	print '\n\n'
 
 def clear():
-	spacegiver()
 	mkey = str(raw_input('Enter mkey : '))
 	inv.remove_all(mkey)
 	print 'All items removed.' + '\n\n'	
 
 def showcosts():
-	spacegiver()
 	key = str(raw_input('Enter key : '))
 	inv.only_price(key)
 	print '\n\n'
 
 def showquant():
-	spacegiver()
 	key = str(raw_input('Enter key : '))
 	inv.only_quantity(key)
 	print '\n\n'
 
 def Output_Market(key):
-	spacegiver()
 	inv.create_html_Market(key)
 	print '\n\n'
 
@@ -69,12 +60,10 @@ def showkeys():
 	print inv.keys
 
 def keys_create(x, mkey):
-	spacegiver()
 	inv.create_key(x, mkey, 'NA')
 	print '\n\n'
 
 def check_keymap():
-	spacegiver()
 	mkey = str(raw_input('Enter mkey : '))
 	#print inv.check_key_map(mkey) #dd
 	if inv.check_key_map(mkey) is True:
@@ -84,26 +73,22 @@ def check_keymap():
 	#print '\n\n'
 
 def keys_remove():
-	spacegiver()
 	key = str(raw_input('Enter key to be removed : '))
 	mkey = str(raw_input('Enter mkey : '))
 	inv.remove_key(key, mkey)
 	print '\n\n'
 
 def showkeys():
-	spacegiver()
 	mkey = str(raw_input('Enter mkey : '))
 	inv.show_keys(mkey)
 
 def Search():
-	spacegiver()
 	skey = str(raw_input('Enter the item name to search for : '))
 	key = str(raw_input('Enter key : '))
 	inv.search(skey, key)
 	print '\n\n'	
 
 def mapkeys():
-	spacegiver()
 	key = str(raw_input("Enter key : "))
 	ph = str(raw_input("Enter phone no : "))
 	email = str(raw_input("Enter email : "))
@@ -111,18 +96,15 @@ def mapkeys():
 	print '\n\n'
 
 def showmapkeys():
-	spacegiver()
 	mkey = str(raw_input('Enter mkey : '))
 	inv.showmapkey(mkey)
 
 def key_details():
-	spacegiver()
 	key = str(raw_input('Enter key : '))
 	inv.showkeydetails(key)
 	print '\n\n'
 
 def add_buy():
-	spacegiver()
 	key = str(raw_input('Enter key : '))
 	wkey = str(raw_input('Enter target key: '))
 	wlabel = str(raw_input('Enter target item : '))
@@ -130,18 +112,15 @@ def add_buy():
 	print '\n\n'
 
 def show_buy():
-	spacegiver()
 	key = str(raw_input('Enter key : '))
 	inv.show_buyerlist(key)
 	print '\n\n'
 
 def connect_all():
-	spacegiver()
 	inv.establish_connection()
 	print '\n\n'
 
 def key_check():
-	spacegiver()
 	key = str(raw_input('Enter key : '))
 	if inv.key_check(key) is 1:
 		print 'Key valid.'
@@ -149,7 +128,6 @@ def key_check():
 		print 'Key invalid'
 
 def key_mcheck():
-	spacegiver()
 	mkey = str(raw_input('Enter mkey : '))
 	if inv.key_mcheck(mkey) is 1:
 		print 'Mkey valid.'
@@ -159,11 +137,8 @@ def key_mcheck():
 def int_m(commandkey): #initial function that creates the "mkey"
 	keyexists = False
 	for key in inv.keys:
-		try:
-			if str(inv.mappedkeys[key])[:-1] is 'MA':
-				keyexists = True
-		except KeyError:
-				print 'MapError'
+		if inv.key_mcheck(key) is 1:
+			keyexists = True
 	if keyexists is False:
 		inv.create_key(666,'000', commandkey)
 		mkey = inv.keys
@@ -172,7 +147,7 @@ def int_m(commandkey): #initial function that creates the "mkey"
 def back_up():
 	inv.back_up()	
 
-def test():
+def restore():
 	inv.restore()
 
 #main function that controls the endless loop until exit:
@@ -204,8 +179,7 @@ def main():
 	menu['Keys_map_pkey'] = "\t" + 'Map user passkey.'
 	menu['q'] = '\t' + 'Shut down system.'
 	menu['Backup'] = '\t' + 'Backup Data'
-
-	spacegiver()
+	menu['Restore'] = '\t' + 'Restore'
 
 	#menu loop
 
@@ -215,6 +189,8 @@ def main():
 		for entry in options:
 			print entry, menu[entry]
 		selection = raw_input('Please Select : ')
+		if selection == 'Restore':
+			restore()
 		if selection == 'Backup':
 			back_up()
 		if selection == 'test':
@@ -272,4 +248,5 @@ def main():
 			break		
 		else:
 			print 'Unkown Option'
-			spacegiver()
+
+#main() #debug switch
