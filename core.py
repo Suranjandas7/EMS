@@ -1,7 +1,6 @@
 #IDEA: write analytics function.
 
-#To-Do:NEXT: Fix pkey encryption bug (test)
-#To-Do:NEXT: Write sendemail func
+#DONE: Fix pkey encryption bug (test)
 #To-Do:NEXT: Clean up the code a lot.
 
 
@@ -169,8 +168,6 @@ class inventory(object):
 		finaldict = rqk(CONNECTIONS)
 		self.connections = finaldict
 
-		#MAW
-		#special case as pkeys are encrypted by enckey instead of mkey to protect users
 		PKEYS = backupdata[5]
 		print 'Pkey map found.'
 		output = {}
@@ -341,6 +338,9 @@ class inventory(object):
 			message3 = """</table></div><div class = "container"><br><p>@2017</p></div>
 			</body></html>"""
 			final = message1 + message101 + message2 + message3
+			f = open("data.html", "w") #debug
+			f.write(final) #debug
+			f.close() #debug
 			print 'HTML MAIL CREATED.' #change this to later make it return the final message and use that as email body.
 			return final
 

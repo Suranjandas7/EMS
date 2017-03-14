@@ -1,6 +1,10 @@
-#DONE: Write the acti [key] email command
-#TO-DO:NEXT: Finish the show [key] email command to include returning an email to the issued command
-#TO-DO:NEXT: Value error catching
+#DONE: Write the acti [key] email command [user level]
+#DONE Write add [user level] 
+#To-Do:NEXT: Write update [user level] 
+#To-do:NEXT: Write remove [user level]
+#To-DO:NEXT: Write the general email func
+#To-DO:NEXT: Write the show_keys email command [admin level]
+#TO-DO:NEXT: Finish the show via email command to include returning an email to user [user level]
 #listening script
 
 from core import *
@@ -12,19 +16,17 @@ import email.header
 import sched, time
 
 orders = []
+log = []
+e = str(raw_input('Enter the email id :'))
+p = str(raw_input('Enter the password : '))
 
-def check_for_orders():
-	#username goes here ->
-	username = '420dopeshiteveryday@gmail.com'
-	#password goes here ->
-	password = 'kickasss1'
-
-	#we only check for max 20 orders every 2 minutes
-	max_orders = 100
+def check_for_orders(emailid, password):
+	#we only check for max 10 orders every refresh
+	max_orders = 10
 
 	#log into pop
 	pop_conn = poplib.POP3_SSL('pop.gmail.com')
-	pop_conn.user(username)
+	pop_conn.user(emailid)
 	pop_conn.pass_(password)
 
 	#counting number of messages
@@ -44,27 +46,21 @@ def check_for_orders():
 	orders.reverse() #for sequence		
 	pop_conn.quit()
 
-def mainloop():
-	check_for_orders()
+def mainloop(emailid, password):
+	check_for_orders(emailid, password)
 
 	if orders == []:
-		print 'No new orders...'
+		log.append('Searching for orders...')
 	else:
 		for items in orders:
 			#admin command to create key -> crea [MASTERKEY]
 			if str(items)[0:4] == 'crea':
 				codebase.keys_create(int(str(items)[5:6]), str(items)[7:len(items)])
+				log.append(items)
+				print '\tKey(s) created.'
 				orders.remove(items)
 
-			#show commands sends a email with the inventory html file as the body -> show [KEY]
-			#MAW
-			#if str(items)[0:4] == 'show':
-			#	body = codebase.create_html_Market(str(items)[5:len(items)])
-				#send email using this body. Use the maping to extract the email id of the key of the user.
-			#	print 'Email sent with market inventory to: '
-			#	orders.remove(items)
-
-			#activates a key
+			#user command to activate a key -> acti [key] [ph|em|pk]
 			if str(items)[0:4] == 'acti':
 				key = str(items)[5:9]
 				otherstuff = str(items)[10:len(str(items))]
@@ -73,19 +69,43 @@ def mainloop():
 				pk = otherstuff.split('|')[2]
 				for keys in codebase.inv.keys:
 					if key == keys:
-						codebase.inv.map_keys(key, ph, em)
-						codebase.inv.map_pkey(key, pk)
-						print 'Key mapped.'
+						for pkeys in codebase.inv.keys:
+							try:
+								if codebase.inv.mappedkeys[key] == pk:
+									print 'Pkey already exists.' #nevergonnahappen
+							except KeyError:	
+								codebase.inv.map_keys(key, ph, em)
+								codebase.inv.map_pkey(key, pk)
+								log.append(items)
 				orders.remove(items)
 
-	s.enter(120,1,mainloop(), (sc,))
+			#user command to add item -> add [key] [name|pricepu|quan|units|pkey]
+			if str(items)[0:3] == 'add':
+				log.append(items)
+				key = str(items)[4:8]
+				otherstuff = str(items)[9:len(str(items))]
+				name = otherstuff.split('|')[0]
+				pricepu = otherstuff.split('|')[1]
+				quan = otherstuff.split('|')[2]
+				units = otherstuff.split('|')[3]
+				pkey = otherstuff.split('|')[4]
+				for keys in codebase.inv.keys:
+					if key == keys:
+						for pkeys in codebase.inv.pkeys:
+							try:
+								if codebase.inv.decpt(codebase.inv.pkeys[key], codebase.inv.enckey, 'NA', 'NA') == pkey:
+									codebase.inv.add_item(codebase.item(name, pricepu, quan, units, key, 'NA'))
+									codebase.inv.create_html_Market(key) #debug
+							except KeyError:
+								print '\tOops.'
+				orders.remove(items)
 
-#initial masterkey creation command -> int_m [MASTERKEY]
+	s.enter(120,1,mainloop(emailid, password), (sc,))
 
 initialMkey = str(raw_input('Set the MASTERKEY: '))
 codebase.int_m(initialMkey)
 print 'Masterkey Created. EMS service online. Receiving Orders'
-
+log.append('Masterkey Created. EMS service started. Receiving Orders:')
 s = sched.scheduler(time.time, time.sleep)
-s.enter(120,1,mainloop(), (sc,))
+s.enter(120,1,mainloop(e, p), (sc,))
 s.run
