@@ -1,10 +1,11 @@
 #DONE: Write the acti [key] email command [user level]
 #DONE Write add [user level] 
+#DONE: Write the general email func
 #To-Do:NEXT: Write update [user level] 
 #To-do:NEXT: Write remove [user level]
-#To-DO:NEXT: Write the general email func
 #To-DO:NEXT: Write the show_keys email command [admin level]
 #TO-DO:NEXT: Finish the show via email command to include returning an email to user [user level]
+#TO-DO:NEXT: Fix subject bug.
 #listening script
 
 from core import *
@@ -15,10 +16,34 @@ import email
 import email.header
 import sched, time
 
+import smtplib
+from email.MIMEMultipart import MIMEMultipart
+from email.MIMEText import MIMEText
+
 orders = []
 log = []
 e = str(raw_input('Enter the email id :'))
 p = str(raw_input('Enter the password : '))
+
+#MAW
+def send_email(user, body):
+	fromaddr = e 
+	to = user
+	body = body
+
+	msg = MIMEMultipart()
+	msg['From'] = fromaddr
+	msg['To'] = to 
+	msg['Subject'] = "EMS" #not working. Why?
+
+	msg.attach(MIMEText(body,'plain'))
+
+	server = smtplib.SMTP('smtp.gmail.com', 587)
+	server.starttls()
+	server.login(e, p)
+	text = msg.as_string()
+	server.sendmail(e, user, body)
+	server.quit()
 
 def check_for_orders(emailid, password):
 	#we only check for max 10 orders every refresh
