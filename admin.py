@@ -3,11 +3,14 @@
 #DONE: Write the general email func
 #DONE: Check if template model works (html working but not css but this is most likely not "our" problem)
 #DONE: Write Show command [user level]
+#DONE: Write update [user level]
+#DONE: Write an exit command [admin level]
 
-#To-DO:NEXT: Write an exit command [admin level]
-#To-Do:NEXT: Write update [user level] (testing)
 #To-Do:NEXT: Write the other templates 
 #To-DO:NEXT: Write the show_keys email command [admin level]
+#To-DO:NEXT: write the remove_keys command [admin level]
+#To-DO:NEXT: Write the backup func [admin level]
+#To-Do:NEXT: Write the restore func [admin level]
 #TO-DO:NEXT: Fix subject bug.
 #To-DO:NEXT: Make the html emails look prettier somehow.
 #listening script
@@ -81,9 +84,18 @@ def mainloop(emailid, password):
 		log.append('Searching for orders...')
 	else:
 		for items in orders:
-			#admin command to create key -> crea [MASTERKEY]
-			if str(items)[0:4] == 'crea':
+			#admin command to create key -> crea [x] [MASTERKEY]
+			if str(items)[0:4] == 'CREA':
 				codebase.keys_create(int(str(items)[5:6]), str(items)[7:len(items)])
+				log.append(items)
+				print '\tKey(s) created.'
+				orders.remove(items)
+
+			#admin command to stop the program -> EXIT [MASTERKEY]
+			if str(items)[0:4] == 'EXIT':
+				mkey = str(items)[5:len(str(items))]
+				if codebase.inv.key_mcheck(mkey) is 1:
+					exit()
 				log.append(items)
 				print '\tKey(s) created.'
 				orders.remove(items)
@@ -159,6 +171,7 @@ def mainloop(emailid, password):
 							except KeyError:
 								print '\tOops.'
 				orders.remove(items)
+
 
 	s.enter(120,1,mainloop(emailid, password), (sc,)) #change 1 -> 10 or 20
 
