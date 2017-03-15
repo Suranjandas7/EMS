@@ -1,11 +1,15 @@
 #DONE: Write the acti [key] email command [user level]
-#DONE Write add [user level] 
+#DONE: Write add [user level] 
 #DONE: Write the general email func
-#To-Do:NEXT: Write update [user level] 
-#To-do:NEXT: Write remove [user level]
+#DONE: Check if template model works (html working but not css but this is most likely not "our" problem)
+#DONE: Write Show command [user level]
+
+#To-DO:NEXT: Write an exit command [admin level]
+#To-Do:NEXT: Write update [user level] (testing)
+#To-Do:NEXT: Write the other templates 
 #To-DO:NEXT: Write the show_keys email command [admin level]
-#TO-DO:NEXT: Finish the show via email command to include returning an email to user [user level]
 #TO-DO:NEXT: Fix subject bug.
+#To-DO:NEXT: Make the html emails look prettier somehow.
 #listening script
 
 from core import *
@@ -25,24 +29,23 @@ log = []
 e = str(raw_input('Enter the email id :'))
 p = str(raw_input('Enter the password : '))
 
-#MAW
 def send_email(user, body):
 	fromaddr = e 
 	to = user
-	body = body
+	body = unicode(body)
 
-	msg = MIMEMultipart()
-	msg['From'] = fromaddr
-	msg['To'] = to 
-	msg['Subject'] = "EMS" #not working. Why?
+	msg = MIMEMultipart('alternative')
+	msg['From'] = str(fromaddr)
+	msg['To'] = str(to) 
+	msg['Subject'] = 'EMS' #not working. Why?
 
-	msg.attach(MIMEText(body,'plain'))
+	chunk = MIMEText(body,'html')
+	msg.attach(chunk)
 
 	server = smtplib.SMTP('smtp.gmail.com', 587)
 	server.starttls()
 	server.login(e, p)
-	text = msg.as_string()
-	server.sendmail(e, user, body)
+	server.sendmail(e, user, chunk.as_string())
 	server.quit()
 
 def check_for_orders(emailid, password):
@@ -120,12 +123,44 @@ def mainloop(emailid, password):
 							try:
 								if codebase.inv.decpt(codebase.inv.pkeys[key], codebase.inv.enckey, 'NA', 'NA') == pkey:
 									codebase.inv.add_item(codebase.item(name, pricepu, quan, units, key, 'NA'))
-									codebase.inv.create_html_Market(key) #debug
 							except KeyError:
 								print '\tOops.'
 				orders.remove(items)
 
-	s.enter(120,1,mainloop(emailid, password), (sc,))
+			if str(items)[0:4] == 'show':
+				key = str(items)[5:9]
+				try:
+					useremail = codebase.inv.mappedkeys[key].split('|')[1]
+					thetext = str(codebase.inv.create_html_Market(key))
+					body = MIMEText(thetext, 'html')
+					send_email(useremail, body)
+					print 'IREmail sent to : ' + str(useremail)
+				except KeyError:
+					print '\tOops'
+				orders.remove(items)
+
+			#user command to update item -> updt [key] [label|pricepu|quan|units|pkey]
+			if str(items)[0:4] == 'updt':
+				log.append(items)
+				key = str(items)[5:9]
+				otherstuff = str(items)[10:len(str(items))]
+				name = otherstuff.split('|')[0]
+				pricepu = otherstuff.split('|')[1]
+				quan = otherstuff.split('|')[2]
+				units = otherstuff.split('|')[3]
+				pkey = otherstuff.split('|')[4]
+				for keys in codebase.inv.keys:
+					if key == keys:
+						for pkeys in codebase.inv.pkeys:
+							try:
+								if codebase.inv.decpt(codebase.inv.pkeys[key], codebase.inv.enckey, 'NA', 'NA') == pkey:
+									codebase.inv.update(name, pricepu, quan, key)
+									print 'item updated'
+							except KeyError:
+								print '\tOops.'
+				orders.remove(items)
+
+	s.enter(120,1,mainloop(emailid, password), (sc,)) #change 1 -> 10 or 20
 
 initialMkey = str(raw_input('Set the MASTERKEY: '))
 codebase.int_m(initialMkey)

@@ -1,6 +1,7 @@
 #IDEA: write analytics function.
-
 #DONE: Fix pkey encryption bug (test)
+#DONE: Shift to template oriented model
+
 #To-Do:NEXT: Clean up the code a lot.
 
 
@@ -301,9 +302,9 @@ class inventory(object):
 					print 'Userkey not mapped.'
 
 	#updates any item in self.items with new absolute values of amt and qt and checks for the key
-	def update(self, ID, amt, qta, key):
+	def update(self, label, amt, qta, key):
 		for item in self.items.values():
-			if item.label == ID:
+			if item.label == label:
 				if item.key == key:
 					item.ammount = amt
 					item.quantity = qta
@@ -318,31 +319,23 @@ class inventory(object):
 	#outputs html inventory
 	def create_html_Market(self, key):
 		if self.key_check(key) is 1:
-			message1 = ''
-			message101 = ''
-			message2 = ''
-			message3 = ''
+			d = open('templates/marketlist.html', 'r')
+			s = ''
+			for lines in d.readlines():
+				s = s + str(lines)
+			top = s.split('[data]')[0]
+			bottom = s.split('[data]')[1]
+			middle = ''
+
 			for items in self.items.values():
 				if items.quantity == ' ':
 					print 'Removed item'
 				else:
 					desc = '<tr><td>' + str(items.label) + '</td><td>' + str(items.ammount) + '</td><td>' + str(items.quantity) + '</td><td>' + str(items.unit) + '</td><td>' + str(items.key) + '</td></td>'
-					message2 = message2 + """
+					middle = middle + """
 					{desc}""".format(desc = desc)
-			message1 = """<!DOCTYPE html>
-			<html lang = "en">
-			<head><meta charset = "utf-8"><meta name = "viewport" content = "width=device-width, initial-scale = 1"><title>Current Market</title></head>
-			<link rel = "stylesheet" href = "bootstrap.min.css">
-			<body>"""
-			message101 = """<div class = container> <h2>Current Market</h2></div><div class = "container"><table class = "table table-striped"><tr><th>Label</th><th>Price per unit</th><th>Quantity available</th><th>Unit</th><th>Key</th></tr>"""
-			message3 = """</table></div><div class = "container"><br><p>@2017</p></div>
-			</body></html>"""
-			final = message1 + message101 + message2 + message3
-			f = open("data.html", "w") #debug
-			f.write(final) #debug
-			f.close() #debug
-			print 'HTML MAIL CREATED.' #change this to later make it return the final message and use that as email body.
-			return final
+			final = str(top) + str(middle) + str(bottom)
+			return final #debug
 
 	#creates x no. of keys and stores it in the system
 	def create_key(self, noofkeys, mkey, int_mcommand):
