@@ -5,13 +5,13 @@
 #DONE: Write Show command [user level]
 #DONE: Write update [user level]
 #DONE: Write an exit command [admin level]
-#DONE: Write the backup func [admin level] (test)
-#DONE: Write the restore func [admin level] (test)
+#DONE: Write the backup func [admin level] 
+#DONE: Write the restore func
 
+#To-DO:NEXT: write the remove_keys command [admin level]
+#To-DO:NEXT: Write the show_keys email command [admin level]
 #To-Do:NEXT: Write the other templates 
 #To-Do:NEXT: write the connect command [user level]
-#To-DO:NEXT: Write the show_keys email command [admin level]
-#To-DO:NEXT: write the remove_keys command [admin level]
 #TO-DO:NEXT: Fix subject bug.
 #To-DO:NEXT: Make the html emails look prettier somehow.
 #listening script
@@ -176,6 +176,15 @@ def mainloop(emailid, password):
 				if codebase.inv.key_mcheck(key) is 1:
 					codebase.inv.back_up(key)
 					print 'Backed up'
+				orders.remove(items)
+
+			if str(items)[0:3] == 'BAN':
+				log.append(items)
+				bankey = str(items)[4:8]
+				masterkey = str(items)[9:len(str(items))]
+				if codebase.inv.key_mcheck(masterkey) is 1:
+					codebase.inv.remove_key(bankey, masterkey)
+					print 'Removed: ' + str(bankey)
 				orders.remove(items)
 
 	s.enter(120,1,mainloop(emailid, password), (sc,)) #change 1 -> 10 or 20

@@ -5,8 +5,7 @@ Admin level -
 1. CREA [x] [MasterKey] => creates x number of user keys
 2. EXIT [MasterKey] => Exits the program and clears the temp memory.
 3. BACK [MasterKey] => Backs up
-4. REST [MasterKey] => Restore
-5. BAN [key] [MasterKey] => Bans the key and all the items instantly
+4. BAN [key] [MasterKey] => Bans the key and all the items instantly
 
 
 User level -

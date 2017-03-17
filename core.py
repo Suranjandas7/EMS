@@ -357,6 +357,7 @@ class inventory(object):
 		if self.key_mcheck(mkey) is 1:
 			self.keys.remove(key)
 			self.mappedkeys.pop(key)
+			self.pkeys.pop(key)
 			print '\n' + 'Key removed' + '\n\n'
 			for items in self.items.values():
 				if items.key == key:
