@@ -5,12 +5,13 @@
 #DONE: Write Show command [user level]
 #DONE: Write update [user level]
 #DONE: Write an exit command [admin level]
+#DONE: Write the backup func [admin level] (test)
+#DONE: Write the restore func [admin level] (test)
 
 #To-Do:NEXT: Write the other templates 
+#To-Do:NEXT: write the connect command [user level]
 #To-DO:NEXT: Write the show_keys email command [admin level]
 #To-DO:NEXT: write the remove_keys command [admin level]
-#To-DO:NEXT: Write the backup func [admin level]
-#To-Do:NEXT: Write the restore func [admin level]
 #TO-DO:NEXT: Fix subject bug.
 #To-DO:NEXT: Make the html emails look prettier somehow.
 #listening script
@@ -96,9 +97,6 @@ def mainloop(emailid, password):
 				mkey = str(items)[5:len(str(items))]
 				if codebase.inv.key_mcheck(mkey) is 1:
 					exit()
-				log.append(items)
-				print '\tKey(s) created.'
-				orders.remove(items)
 
 			#user command to activate a key -> acti [key] [ph|em|pk]
 			if str(items)[0:4] == 'acti':
@@ -172,13 +170,28 @@ def mainloop(emailid, password):
 								print '\tOops.'
 				orders.remove(items)
 
+			if str(items)[0:4] == 'BACK':
+				log.append(items)
+				key = str(items)[5:len(str(items))]
+				if codebase.inv.key_mcheck(key) is 1:
+					codebase.inv.back_up(key)
+					print 'Backed up'
+				orders.remove(items)
 
 	s.enter(120,1,mainloop(emailid, password), (sc,)) #change 1 -> 10 or 20
 
-initialMkey = str(raw_input('Set the MASTERKEY: '))
-codebase.int_m(initialMkey)
-print 'Masterkey Created. EMS service online. Receiving Orders'
-log.append('Masterkey Created. EMS service started. Receiving Orders:')
+choice = int(raw_input('1 - Start new \n2 - Backup old\nEnter choice : '))
+if choice is 1:
+	initialMkey = str(raw_input('Set the MASTERKEY: '))
+	codebase.int_m(initialMkey)
+	print 'Masterkey Created. EMS service online. Receiving Orders'
+	log.append('Masterkey Created. EMS service started. Receiving Orders:')
+if choice is 2:
+	old_key = str(raw_input('Enter mkey of the backup : '))
+	codebase.inv.restore(old_key)
+else:
+	print 'Unrecognized command'
+
 s = sched.scheduler(time.time, time.sleep)
 s.enter(120,1,mainloop(e, p), (sc,))
 s.run

@@ -1,0 +1,20 @@
+EMS email command schema
+
+Admin level -
+
+1. CREA [x] [MasterKey] => creates x number of user keys
+2. EXIT [MasterKey] => Exits the program and clears the temp memory.
+3. BACK [MasterKey] => Backs up
+4. REST [MasterKey] => Restore
+5. BAN [key] [MasterKey] => Bans the key and all the items instantly
+
+
+User level -
+
+1. acti [key] [ph|em|pk] => Maps the key's details as per phone(ph) email(em) and pass key(pk)
+2. add [key] [name|ppu|quan|units|pkey]
+3. show [key] => Shows the current inventory
+4. updt [key] [name|ppu|quan|units|pkey] => updates an item listed by the user
+5. chpk [opk] [npk] => change passkey
+6. remv [key] => clears the key out of the system and all the listed items
+7. conn [key] tk|ti => connects the user to another user.

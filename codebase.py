@@ -134,6 +134,6 @@ def int_m(commandkey): #initial function that creates the "mkey"
 		if inv.key_mcheck(key) is 1:
 			keyexists = True
 	if keyexists is False:
-		inv.create_key(666,'000', commandkey) #debug mode. commandkey
+		inv.create_key(666,'000', commandkey)
 		mkey = inv.keys
 		inv.map_keys(mkey[0], 'MA','')

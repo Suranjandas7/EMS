@@ -41,9 +41,7 @@ class inventory(object):
 		self.pkeys = {} #hashed passkeys 
 		self.enckey = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(10)) #hashkey primarykey
 
-	def back_up(self):
-		mkey = str(raw_input('Enter mkey: '))
-
+	def back_up(self, mkey):
 		if self.key_mcheck(mkey) is 1:
 			f = open("BACKUP.DAT", "w")
 			backupall = ''
@@ -72,7 +70,7 @@ class inventory(object):
 			#backup market mappedkeys
 			for keys in backup_mappedkeys:
 				k = keys
-				mapped = self.decpt(backup_mappedkeys[k], backup_enckey, 'NA', 'NA')
+				mapped = backup_mappedkeys[k]
 				data = str(k) + '-' + str(mapped) + '--'
 				backupall = backupall + data
 
@@ -80,26 +78,32 @@ class inventory(object):
 			
 			#backup buyers
 			for keys in backup_buyers:
-				k = keys
-				maped = backup_buyers[k]
-				data = str(k) + '-' + str(maped) + '--'
-				backupall = backupall + data
+				try:
+					k = keys
+					maped = backup_buyers[k]
+					data = str(k) + '-' + str(maped) + '--'
+					backupall = backupall + data
+				except KeyError:
+					print 'Backup_buyers cannot be created'
 
 			backupall = backupall + '=SP='
 
 			#backup connections
 			for keys in backup_connections:
-				k = keys
-				maped = backup_buyers[k]
-				data = str(k) + '-' + str(maped) + '--'
-				backupall = backupall + data
+				try:
+					k = keys
+					maped = backup_buyers[k]
+					data = str(k) + '-' + str(maped) + '--'
+					backupall = backupall + data
+				except KeyError:
+					print 'Backup_connetions cannot be created'
 
 			backupall = backupall + '=SP='
 
 			#backup pkeys
 			for keys in backup_pkeys:
 				k = keys
-				maped = backup_buyers[k]
+				maped = self.decpt(backup_pkeys[k], backup_enckey, 'NA', 'NA')
 				data = str(k) + '-' + str(maped) + '--'
 				backupall = backupall + data
 
@@ -112,9 +116,9 @@ class inventory(object):
 			f.close()
 			print 'Backup created as BACKUP.dat\n'
 	
-	def restore(self):
+	def restore(self, key):
 		#Restore function
-		mkey = str(raw_input('Enter mkey of BACKUP: '))
+		mkey = str(key)
 		f = open('BACKUP.DAT', 'rb')
 
 		#function used repetedly later on in this method
@@ -177,7 +181,7 @@ class inventory(object):
 			try:
 				firstfield = key.split('-')[0]
 				secondfield = key.split('-')[1]
-				output[firstfield] = secondfield
+				output[firstfield] = self.encpt(secondfield, backupdata[6], 'NA', 'NA')
 			except IndexError:
 				print 'RESTORED.'
 		self.pkeys = output
@@ -335,7 +339,7 @@ class inventory(object):
 					middle = middle + """
 					{desc}""".format(desc = desc)
 			final = str(top) + str(middle) + str(bottom)
-			return final #debug
+			return final
 
 	#creates x no. of keys and stores it in the system
 	def create_key(self, noofkeys, mkey, int_mcommand):
