@@ -1,14 +1,3 @@
-#DONE: Write the acti [key] email command [user level]
-#DONE: Write add [user level] 
-#DONE: Write the general email func
-#DONE: Check if template model works (html working but not css but this is most likely not "our" problem)
-#DONE: Write Show command [user level]
-#DONE: Write update [user level]
-#DONE: Write an exit command [admin level]
-#DONE: Write the backup func [admin level] 
-#DONE: Write the restore func
-
-#To-DO:NEXT: write the remove_keys command [admin level]
 #To-DO:NEXT: Write the show_keys email command [admin level]
 #To-Do:NEXT: Write the other templates 
 #To-Do:NEXT: write the connect command [user level]

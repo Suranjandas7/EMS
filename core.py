@@ -1,10 +1,3 @@
-#IDEA: write analytics function.
-#DONE: Fix pkey encryption bug (test)
-#DONE: Shift to template oriented model
-
-#To-Do:NEXT: Clean up the code a lot.
-
-
 import random
 import string
 import os

@@ -1,5 +1,3 @@
-#TO:DO:FUTURE - Make the code client friendly. Work in contra while writing the client and the core. Basically make this into an api modelled with/during the client.
-
 #ems access codebase
 from core import *
 
